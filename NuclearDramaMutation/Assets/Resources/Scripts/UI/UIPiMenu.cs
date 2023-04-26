@@ -11,28 +11,57 @@ public class UIPiMenu : UICore
         Btn01,
         Btn02,
         Btn03,
-        Btn04
+        Btn04,
+        Btn01Txt,
+        Btn02Txt,
+        Btn03Txt,
+        Btn04Txt
     }
+    private int pattern;
     private RectTransform rectTransform;
+    private GameObject locadGame;
+    private GameObject cloneObject;
+    private void Awake()
+    {
+        rectTransform = QueryComponent<RectTransform>(transform, Enums.PiMenu);
+
+    }
     public void Refresh(int _pattern)
     {
+        pattern = _pattern;
         OnclickInstall(_pattern);
         StartAnim();
     }
     public void OnclickInstall(int _pattern)
     {
+        QueryComponent<Button>(transform, Enums.Btn01).onClick.RemoveAllListeners();
+        QueryComponent<Button>(transform, Enums.Btn02).onClick.RemoveAllListeners();
+        QueryComponent<Button>(transform, Enums.Btn03).onClick.RemoveAllListeners();
+        QueryComponent<Button>(transform, Enums.Btn04).onClick.RemoveAllListeners();
         switch (_pattern)
+
         {
+            
             case 0:
+                QueryComponent<Text>(transform, Enums.Btn01Txt).text = $"开始";
+                QueryComponent<Text>(transform, Enums.Btn02Txt).text = $"退出";
+                QueryComponent<Text>(transform, Enums.Btn03Txt).text = $"静音";
+                QueryComponent<Text>(transform, Enums.Btn04Txt).text = $"成就";
                 QueryComponent<Button>(transform, Enums.Btn01).onClick.AddListener(() =>
                 {
-                    EndAnim();
-                    OpenUIShow("IrregularCircle", UIShowLayer.Default, (game) => { });
+                    EndAndAnim();
+                    OpenUIShow("IrregularCircle", UIShowLayer.Default, (game) =>
+                    {
+                        if (game != null)
+                        {
+                            SceneCore.Singletons.GetAsyncLoadScene("FightOne");
+                        }
+                    });
                 });
                 QueryComponent<Button>(transform, Enums.Btn02).onClick.AddListener(() =>
                 {
-                    EndAnim();
-                    float _timeCount=0;
+                    EndAndAnim();
+                    float _timeCount = 0;
                     DOTween.To(() => _timeCount, a => _timeCount = a, 1, 0.5f).OnComplete(() => EndGame());
                 });
                 QueryComponent<Button>(transform, Enums.Btn03).onClick.AddListener(() =>
@@ -45,39 +74,110 @@ public class UIPiMenu : UICore
                 });
                 break;
             case 1:
+                QueryComponent<Text>(transform, Enums.Btn01Txt).text = $"建造";
+                QueryComponent<Text>(transform, Enums.Btn02Txt).text = $"退出";
+                QueryComponent<Text>(transform, Enums.Btn03Txt).text = $"静音";
+                QueryComponent<Text>(transform, Enums.Btn04Txt).text = $"关闭";
                 QueryComponent<Button>(transform, Enums.Btn01).onClick.AddListener(() =>
                 {
-                    SetShowTips(false, "功能暂未开放！");
-                    EndAnim();
+                    RefreshMenu(2);
                 });
                 QueryComponent<Button>(transform, Enums.Btn02).onClick.AddListener(() =>
                 {
-                    SetShowTips(false, "功能暂未开放！");
-                    EndAnim();
+                    EndAndAnim();
+                    float _timeCount = 0;
+                    DOTween.To(() => _timeCount, a => _timeCount = a, 1, 0.5f).OnComplete(() => EndGame());
                 });
                 QueryComponent<Button>(transform, Enums.Btn03).onClick.AddListener(() =>
                 {
                     SetShowTips(false, "功能暂未开放！");
-                    EndAnim();
                 });
                 QueryComponent<Button>(transform, Enums.Btn04).onClick.AddListener(() =>
                 {
-                    SetShowTips(false, "功能暂未开放！");
-                    EndAnim();
+                    HideAndAnim();
+                });
+                break;
+            case 2:
+                
+                QueryComponent<Text>(transform, Enums.Btn01Txt).text = $"投石器";
+                QueryComponent<Text>(transform, Enums.Btn02Txt).text = $"导弹";
+                QueryComponent<Text>(transform, Enums.Btn03Txt).text = $"炮塔";
+                QueryComponent<Text>(transform, Enums.Btn04Txt).text = $"返回";
+                QueryComponent<Button>(transform, Enums.Btn01).onClick.AddListener(() =>
+                {
+                    if(SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState!=0)
+                    {
+                        SetShowTips(false, "该点无法建造！");
+                        HideAndAnim();
+                        return;
+                    }
+                    locadGame=Resources.Load<GameObject>("Prefabs/Turrent/FattyCatapultG") as GameObject;
+                    cloneObject=Instantiate(locadGame);
+                    cloneObject.transform.position = SceneCroeEntity.Singletons.onClickVect;
+                    SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState = TypeName.NodeTypeName.AttTurret;
+                    HideAndAnim();
+                });
+                QueryComponent<Button>(transform, Enums.Btn02).onClick.AddListener(() =>
+                {
+                    if (SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState != 0)
+                    {
+                        SetShowTips(false, "该点无法建造！");
+                        HideAndAnim();
+                        return;
+                    }
+                    locadGame = Resources.Load<GameObject>("Prefabs/Turrent/FattyMissileG") as GameObject;
+                    cloneObject = Instantiate(locadGame);
+                    cloneObject.transform.position = SceneCroeEntity.Singletons.onClickVect;
+                    HideAndAnim();
+                });
+                QueryComponent<Button>(transform, Enums.Btn03).onClick.AddListener(() =>
+                {
+                    if (SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState != 0)
+                    {
+                        SetShowTips(false, "该点无法建造！");
+                        HideAndAnim();
+                        return;
+                    }
+                    locadGame = Resources.Load<GameObject>("Prefabs/Turrent/FattyMissileGSingle") as GameObject;
+                    cloneObject = Instantiate(locadGame);
+                    cloneObject.transform.position = SceneCroeEntity.Singletons.onClickVect;
+                    HideAndAnim();
+                });
+                QueryComponent<Button>(transform, Enums.Btn04).onClick.AddListener(() =>
+                {
+                    RefreshMenu(1);
                 });
                 break;
         }
     }
     public void StartAnim()
     {
-        rectTransform = QueryComponent<RectTransform>(transform, Enums.PiMenu);
-        transform.DOScale(new Vector3(0.2f, 0.2f, 0.2f), 0.4f);
+        if (pattern == 0)
+            transform.DOScale(new Vector3(0.2f, 0.2f, 0.2f), 0.4f);
+        else
+            transform.DOScale(new Vector3(0.1f, 0.1f, 0.1f), 0.4f);
     }
-    public void EndAnim()
+    public void EndAndAnim()
     {
         transform.DOScale(new Vector3(0, 0, 0), 0.4f).OnComplete(() =>
         {
             CloseShowUI(transform);
+        });
+    }
+    public void HideAndAnim()
+    {
+        transform.DOScale(new Vector3(0, 0, 0), 0.4f).OnComplete(() =>
+        {
+            ShowHide(transform.name, (trans) => {});
+            
+        });
+    }
+    public void RefreshMenu(int _menu)
+    {
+        transform.DOScale(new Vector3(0, 0, 0), 0.4f).OnComplete(() =>
+        {
+            Refresh(_menu);
+            transform.DOScale(new Vector3(0.1f, 0.1f, 0.1f), 0.4f);
         });
     }
     public void EndGame()
@@ -87,5 +187,9 @@ public class UIPiMenu : UICore
 #else
         Application.Quit();
 #endif
+    }
+    private void OnEnable()
+    {
+        StartAnim();
     }
 }

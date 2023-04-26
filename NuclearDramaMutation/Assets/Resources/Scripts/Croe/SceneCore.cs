@@ -20,13 +20,10 @@ public class SceneCore : Singleton<SceneCore>
 
     protected float gridHeight;
 
-    public Dictionary<Vector3, MapNodeData> NodeVecToDateDic = new Dictionary<Vector3, MapNodeData>();
-    public Dictionary<Vector2, MapNodeData> NodeIdToDataDic = new Dictionary<Vector2, MapNodeData>();
+
 
     protected GameObject meshParent;
     //需要Load的资源
-    public GameObject textPrefab;
-    public Transform textParent;
     protected GameObject linePrefab;
     protected Material material;
 
@@ -122,18 +119,23 @@ public class SceneCore : Singleton<SceneCore>
         _async.allowSceneActivation = false;
         while (!_async.isDone)
         {
-            //_async.progress;
-            //Dictionary<string, Transform> _initDic = UICore.Singletons.GetInitDic();
-            //_initDic[TypeName.UITypeName.InitTypeName.ProgressScrollbarIma].GetComponent<Image>().fillAmount = _async.progress;
-            //_initDic[TypeName.UITypeName.InitTypeName.ProgressScrollbar].GetComponent<Scrollbar>().value = _async.progress;
-            //if (_async.progress < 0.9f)
-            //    _initDic[TypeName.UITypeName.InitTypeName.ProgressBarText].GetComponent<TMP_Text>().text = "(" + _async.progress * 100 + "%)";
-            //else
-            //    _initDic[TypeName.UITypeName.InitTypeName.ProgressBarText].GetComponent<TMP_Text>().text = "(" + 100 + "%)";
             Debug.Log("_async.progress" + _async.progress);
+            UICore.Singletons.QueryComponent<UIIrregularCircle>("IrregularCircle", "IrregularCircle").RefreshProgressTxt(_async.progress*100);
             _async.allowSceneActivation = true;
             yield return null;
         }
+        UICore.Singletons.Query<UIIrregularCircle>("IrregularCircle").RefreshProgressTxt(100);
+
+        UICore.Singletons.OpenUIShow("PiMenu", UIShowLayer.DiaLog, (game) =>
+        {
+            UICore.Singletons.ShowHide("PiMenu",(trans)=> { });
+            game.GetComponent<UIPiMenu>().Refresh(1);
+        });
+
+        yield return new WaitForSeconds(1f);
+        UICore.Singletons.CloseShowUI("IrregularCircle");
+        UICore.Singletons.CloseShowUI("Init");
+        
         yield return null;
     }
 

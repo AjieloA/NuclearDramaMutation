@@ -63,7 +63,7 @@ public class UIShowTips : UICore
         //Query(transform, Enum.OkBtn);
         //Query(transform, Enum.OkBtn).GetComponent<Button>().onClick.AddListener(() =>
         //{
-        //    EndAnim();
+        //    EndAndAnim();
         //});
     }
 }

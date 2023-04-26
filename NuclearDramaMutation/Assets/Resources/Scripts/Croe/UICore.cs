@@ -28,7 +28,6 @@ public class UICore : Singleton<UICore>
         dic.Clear();
         //加载资源
         ResourceRequest _prefab = Resources.LoadAsync(TypeName.ResourcesTypeName.ResourcesUIPrefabes + _name);
-        //获取对应脚本
         while (!_prefab.isDone)
         {
             yield return null;
@@ -36,16 +35,19 @@ public class UICore : Singleton<UICore>
         //实例化资源
         GameObject _game = Instantiate(_prefab.asset as GameObject, GameObject.Find("UI").transform.GetChild((int)_uIShowLayer));
         _game.name = _name;
-        //添加脚本
 
         Transform[] _allGame = _game.GetComponentsInChildren<Transform>();
         for (int i = 0; i < _allGame.Length; i++)
         {
             dic.Add(_allGame[i].name, _allGame[i]);
         }
+        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_name))
+            CloseShowUI(_name);
         UICroeEntity.Singletons.QueryUI.Add(_name, new Dictionary<string, Transform>(dic));
         dic.Clear();
+        //获取对应脚本
         Type _type = Type.GetType($"UI{_name}");
+        //添加脚本
         if (_type != null)
             _game.AddComponent(_type);
         _action?.Invoke(_game);
@@ -139,6 +141,36 @@ public class UICore : Singleton<UICore>
         return _UIComponent;
     }
     /// <summary>
+    /// 获取已经打开物体的组件
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="_transform"></param>
+    /// <returns></returns>
+    public T Query<T>(string _transform)
+    {
+        T _UIComponent = default(T);
+        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform))
+            if (UICroeEntity.Singletons.QueryUI[_transform].ContainsKey(_transform))
+                _UIComponent = UICroeEntity.Singletons.QueryUI[_transform][_transform].GetComponent<T>();
+            else
+                Debug.LogError($"{_transform}>>>Query>>>Null");
+        else
+            Debug.LogError($"{_transform}>>>Query>>>Null");
+        return _UIComponent;
+    }
+    public T QueryComponent<T>(string _transform, string _name)
+    {
+        T _UIComponent = default(T);
+        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform))
+            if (UICroeEntity.Singletons.QueryUI[_transform].ContainsKey(_name))
+                _UIComponent = UICroeEntity.Singletons.QueryUI[_transform][_name].GetComponent<T>();
+            else
+                Debug.LogError($"{_name}>>>Query>>>Null");
+        else
+            Debug.LogError($"{_name}>>>Query>>>Null");
+        return _UIComponent;
+    }
+    /// <summary>
     /// 获取子物体组件
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -152,10 +184,28 @@ public class UICore : Singleton<UICore>
             if (UICroeEntity.Singletons.QueryUI[_transform.name].ContainsKey($"{_name}"))
                 _UIComponent = UICroeEntity.Singletons.QueryUI[_transform.name][$"{_name}"].GetComponent<T>();
             else
-                Debug.LogError($"{_name}>>>Query>>>Null");
+                Debug.LogError($"{_name}>>>QueryComponent>>>Null");
         else
-            Debug.LogError($"{_name}>>>Query>>>Null");
+            Debug.LogError($"{_name}>>>QueryComponent>>>Null");
         return _UIComponent;
+    }
+    public void ShowHide(string _name,System.Action<Transform> _action)
+    {
+        GameObject _game = Query<Transform>(_name).gameObject;
+        if (_game != null)
+            _game.SetActive(false);
+        else
+            Debug.LogError($"{_name}>>>ShowHide>>>Null");
+        _action?.Invoke(_game.transform);
+    }
+    public void UnShowHide(string _name,System.Action<Transform> _action)
+    {
+        GameObject _game = Query<Transform>(_name).gameObject;
+        if (_game != null)
+            _game.SetActive(true);
+        else
+            Debug.LogError($"{_name}>>>ShowHide>>>Null");
+        _action?.Invoke(_game.transform);
     }
     /// <summary>
     /// 全局提示框
@@ -175,6 +225,18 @@ public class UICore : Singleton<UICore>
                 if (game != null)
                     game.GetComponent<UITips>().Refresh(_tips);
             });
+    }
+    public bool GetTransState(string _name)
+    {
+        bool _isState=false;
+        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_name))
+            if (UICroeEntity.Singletons.QueryUI[_name].ContainsKey($"{_name}"))
+                 _isState=UICroeEntity.Singletons.QueryUI[_name][$"{_name}"].GetComponent<Transform>().gameObject.activeInHierarchy;
+            else
+                Debug.LogError($"{_name}>>>QueryComponent>>>Null");
+        else
+            Debug.LogError($"{_name}>>>QueryComponent>>>Null");
+        return _isState;
     }
 
 }

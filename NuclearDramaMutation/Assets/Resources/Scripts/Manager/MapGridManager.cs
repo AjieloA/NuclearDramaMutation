@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MapGridManager : SceneCore
@@ -16,21 +17,7 @@ public class MapGridManager : SceneCore
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                EventCore.Instance.TiggerEventListener("Test",NodeIdToDataDic[NameToVector(hit.transform.name)].GetNodeVector);
 
-                //Debug.Log(NodeIdToDataDic[NameToVector(hit.transform.name)].GetNodeVector);
-                //foreach (var item in NodeIdToDataDic[NameToVector(hit.transform.name)].GetNodeNeighborsPoints)
-                //{
-                //    Debug.Log("Ad:" + item);
-                //}
-            }
-        }
     }
 
     public void Init()
@@ -76,28 +63,28 @@ public class MapGridManager : SceneCore
         _nodePoints.Add(new Vector3(_point.x + hexLineLength / 2, _point.y, _point.z + gridHeight / 2));
         _nodePoints.Add(new Vector3(_point.x + hexLineLength, _point.y, _point.z));
         _nodePoints.Add(new Vector3(_point.x + hexLineLength / 2, _point.y, _point.z - gridHeight / 2));
-        NodeIdToDataDic.Add(_center, new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
-        NodeVecToDateDic.Add(_point, new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
+        SceneCroeEntity.Singletons.NodeIdToDataDic.Add($"{_center}", new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
+        SceneCroeEntity.Singletons.NodeVecToDateDic.Add($"{_point}", new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
     }
 
     public void CreatLine()
     {
         GameObject _lineParent = new GameObject("LineParent");
         _lineParent.transform.position = new Vector3(0, 0, 0);
-        foreach (var _item in NodeIdToDataDic)
+        foreach (var _item in SceneCroeEntity.Singletons.NodeIdToDataDic)
         {
             Vector3[] _vertives = new Vector3[7];
-            _vertives[0] = NodeIdToDataDic[_item.Key].GetNodePoints[0];
+            _vertives[0] = SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints[0];
             GameObject _game = Instantiate(linePrefab);
             LineRenderer _lineRenderer = _game.transform.GetComponent<LineRenderer>();
             _lineRenderer.positionCount = 6;
-            for (int i = 1; i < NodeIdToDataDic[_item.Key].GetNodePoints.Count; i++)
+            for (int i = 1; i < SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints.Count; i++)
             {
-                _lineRenderer.SetPosition(i - 1, NodeIdToDataDic[_item.Key].GetNodePoints[i]);
-                _vertives[i] = NodeIdToDataDic[_item.Key].GetNodePoints[i];
+                _lineRenderer.SetPosition(i - 1, SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints[i]);
+                _vertives[i] = SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints[i];
             }
             _game.transform.parent = _lineParent.transform;
-            CreatMesh(_vertives, _item.Key);
+            CreatMesh(_vertives, StrToVector2(_item.Key));
         }
     }
 
@@ -126,10 +113,16 @@ public class MapGridManager : SceneCore
         _mesh.triangles = triangles;
         _game.GetComponent<MeshRenderer>().material = material;
         _game.AddComponent<MeshCollider>();
-        GameObject _text = Instantiate(textPrefab, textParent);
-        float _x = NodeIdToDataDic[_vec2].GetNodeVector.x;
-        float _y = NodeIdToDataDic[_vec2].GetNodeVector.z;
-        _text.GetComponent<RectTransform>().localPosition = new Vector3(_x, _y, 0);
-        _text.GetComponent<TMP_Text>().text = NodeIdToDataDic[_vec2].GetNodeVector.ToString();
+        _game.AddComponent<NodeMouseOnClick>();
+        float _x = SceneCroeEntity.Singletons.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.x;
+        float _y = SceneCroeEntity.Singletons.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.z;
+    }
+    public Vector2 StrToVector2(string _str)
+    {
+        string[] _atrArray = _str.Split(',');
+        int _x = int.Parse(_atrArray[0].Substring(1).Split('.')[0]);
+        int _y = int.Parse(_atrArray[1].Split('.')[0]);
+        return new Vector2(_x, _y);
+
     }
 }

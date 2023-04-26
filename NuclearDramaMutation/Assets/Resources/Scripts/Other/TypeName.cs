@@ -56,7 +56,7 @@ public static class TypeName
         RedCrystal=10,
         GreeCrystal=11,
         PurpleCrystal=12,
-        Monster=13,
+        Monster=13
 
     }
 }
