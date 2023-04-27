@@ -12,8 +12,10 @@ public enum UIShowLayer
 }
 public class UICore : Singleton<UICore>
 {
-    Dictionary<string, Transform> dic = new Dictionary<string, Transform>();
-
+    public UICroeEntity GetUiCroeEntity()
+    {
+        return EntityManager.Singletons.entityManagers[Entity.GLOBAL_UICROEENTITY] as UICroeEntity;
+    }
     /// <summary>
     /// 异步加载UI预制体到场景中
     /// </summary>
@@ -24,8 +26,9 @@ public class UICore : Singleton<UICore>
     }
     public IEnumerator AsyncLoadUIPrefabIE(string _name, UIShowLayer _uIShowLayer, System.Action<GameObject> _action)
     {
+        Dictionary<string, Transform> dic = new Dictionary<string, Transform>();
+
         //Debug.LogError($"{_name}>>>Query>>>");
-        dic.Clear();
         //加载资源
         ResourceRequest _prefab = Resources.LoadAsync(TypeName.ResourcesTypeName.ResourcesUIPrefabes + _name);
         while (!_prefab.isDone)
@@ -41,9 +44,9 @@ public class UICore : Singleton<UICore>
         {
             dic.Add(_allGame[i].name, _allGame[i]);
         }
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_name))
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_name))
             CloseShowUI(_name);
-        UICroeEntity.Singletons.QueryUI.Add(_name, new Dictionary<string, Transform>(dic));
+        GetUiCroeEntity().QueryUI.Add(_name, new Dictionary<string, Transform>(dic));
         dic.Clear();
         //获取对应脚本
         Type _type = Type.GetType($"UI{_name}");
@@ -59,11 +62,11 @@ public class UICore : Singleton<UICore>
     /// <param name="_name"></param>
     public void CloseShowUI(string _name)
     {
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_name))
-            foreach (var _item in UICroeEntity.Singletons.QueryUI[_name])
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_name))
+            foreach (var _item in GetUiCroeEntity().QueryUI[_name])
             {
                 Destroy(_item.Value.gameObject);
-                UICroeEntity.Singletons.QueryUI.Remove(_name);
+                GetUiCroeEntity().QueryUI.Remove(_name);
                 break;
             }
         else
@@ -75,11 +78,11 @@ public class UICore : Singleton<UICore>
     /// <param name="_name"></param>
     public void CloseShowUI(Transform _name)
     {
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_name.name))
-            foreach (var _item in UICroeEntity.Singletons.QueryUI[_name.name])
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_name.name))
+            foreach (var _item in GetUiCroeEntity().QueryUI[_name.name])
             {
                 Destroy(_item.Value.gameObject);
-                UICroeEntity.Singletons.QueryUI.Remove(_name.name);
+                GetUiCroeEntity().QueryUI.Remove(_name.name);
                 break;
             }
         else
@@ -94,9 +97,9 @@ public class UICore : Singleton<UICore>
     public Transform Query(Transform _transform, string _name)
     {
         Transform _UI = null;
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform.name))
-            if (UICroeEntity.Singletons.QueryUI[_transform.name].ContainsKey(_name))
-                _UI = UICroeEntity.Singletons.QueryUI[_transform.name][_name];
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_transform.name))
+            if (GetUiCroeEntity().QueryUI[_transform.name].ContainsKey(_name))
+                _UI = GetUiCroeEntity().QueryUI[_transform.name][_name];
             else
                 Debug.LogError($"{_name}>>>Query>>>Null");
         else
@@ -112,9 +115,9 @@ public class UICore : Singleton<UICore>
     public Transform Query(Transform _transform, System.Enum _name)
     {
         Transform _UI = null;
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform.name))
-            if (UICroeEntity.Singletons.QueryUI[_transform.name].ContainsKey($"{_name}"))
-                _UI = UICroeEntity.Singletons.QueryUI[_transform.name][$"{_name}"];
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_transform.name))
+            if (GetUiCroeEntity().QueryUI[_transform.name].ContainsKey($"{_name}"))
+                _UI = GetUiCroeEntity().QueryUI[_transform.name][$"{_name}"];
             else
                 Debug.LogError($"{_name}>>>Query>>>Null");
         else
@@ -131,9 +134,9 @@ public class UICore : Singleton<UICore>
     public T QueryComponent<T>(Transform _transform, string _name)
     {
         T _UIComponent = default(T);
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform.name))
-            if (UICroeEntity.Singletons.QueryUI[_transform.name].ContainsKey(_name))
-                _UIComponent = UICroeEntity.Singletons.QueryUI[_transform.name][_name].GetComponent<T>();
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_transform.name))
+            if (GetUiCroeEntity().QueryUI[_transform.name].ContainsKey(_name))
+                _UIComponent = GetUiCroeEntity().QueryUI[_transform.name][_name].GetComponent<T>();
             else
                 Debug.LogError($"{_name}>>>Query>>>Null");
         else
@@ -149,9 +152,9 @@ public class UICore : Singleton<UICore>
     public T Query<T>(string _transform)
     {
         T _UIComponent = default(T);
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform))
-            if (UICroeEntity.Singletons.QueryUI[_transform].ContainsKey(_transform))
-                _UIComponent = UICroeEntity.Singletons.QueryUI[_transform][_transform].GetComponent<T>();
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_transform))
+            if (GetUiCroeEntity().QueryUI[_transform].ContainsKey(_transform))
+                _UIComponent = GetUiCroeEntity().QueryUI[_transform][_transform].GetComponent<T>();
             else
                 Debug.LogError($"{_transform}>>>Query>>>Null");
         else
@@ -161,9 +164,9 @@ public class UICore : Singleton<UICore>
     public T QueryComponent<T>(string _transform, string _name)
     {
         T _UIComponent = default(T);
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform))
-            if (UICroeEntity.Singletons.QueryUI[_transform].ContainsKey(_name))
-                _UIComponent = UICroeEntity.Singletons.QueryUI[_transform][_name].GetComponent<T>();
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_transform))
+            if (GetUiCroeEntity().QueryUI[_transform].ContainsKey(_name))
+                _UIComponent = GetUiCroeEntity().QueryUI[_transform][_name].GetComponent<T>();
             else
                 Debug.LogError($"{_name}>>>Query>>>Null");
         else
@@ -180,9 +183,9 @@ public class UICore : Singleton<UICore>
     public T QueryComponent<T>(Transform _transform, System.Enum _name)
     {
         T _UIComponent = default(T);
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_transform.name))
-            if (UICroeEntity.Singletons.QueryUI[_transform.name].ContainsKey($"{_name}"))
-                _UIComponent = UICroeEntity.Singletons.QueryUI[_transform.name][$"{_name}"].GetComponent<T>();
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_transform.name))
+            if (GetUiCroeEntity().QueryUI[_transform.name].ContainsKey($"{_name}"))
+                _UIComponent = GetUiCroeEntity().QueryUI[_transform.name][$"{_name}"].GetComponent<T>();
             else
                 Debug.LogError($"{_name}>>>QueryComponent>>>Null");
         else
@@ -229,9 +232,9 @@ public class UICore : Singleton<UICore>
     public bool GetTransState(string _name)
     {
         bool _isState=false;
-        if (UICroeEntity.Singletons.QueryUI.ContainsKey(_name))
-            if (UICroeEntity.Singletons.QueryUI[_name].ContainsKey($"{_name}"))
-                 _isState=UICroeEntity.Singletons.QueryUI[_name][$"{_name}"].GetComponent<Transform>().gameObject.activeInHierarchy;
+        if (GetUiCroeEntity().QueryUI.ContainsKey(_name))
+            if (GetUiCroeEntity().QueryUI[_name].ContainsKey($"{_name}"))
+                 _isState=GetUiCroeEntity().QueryUI[_name][$"{_name}"].GetComponent<Transform>().gameObject.activeInHierarchy;
             else
                 Debug.LogError($"{_name}>>>QueryComponent>>>Null");
         else

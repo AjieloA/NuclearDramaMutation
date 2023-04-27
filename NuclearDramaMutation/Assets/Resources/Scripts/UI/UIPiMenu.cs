@@ -21,10 +21,15 @@ public class UIPiMenu : UICore
     private RectTransform rectTransform;
     private GameObject locadGame;
     private GameObject cloneObject;
+    private SceneCroeEntity sceneEntity;
     private void Awake()
     {
         rectTransform = QueryComponent<RectTransform>(transform, Enums.PiMenu);
 
+    }
+    private void Start()
+    {
+        sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
     }
     public void Refresh(int _pattern)
     {
@@ -54,7 +59,10 @@ public class UIPiMenu : UICore
                     {
                         if (game != null)
                         {
-                            SceneCore.Singletons.GetAsyncLoadScene("FightOne");
+                            SceneCore.Singletons.GetAsyncLoadScene("FightOne", () =>
+                            {
+                                Application.Singletons.CreatMapManger();
+                            });
                         }
                     });
                 });
@@ -105,7 +113,7 @@ public class UIPiMenu : UICore
                 QueryComponent<Text>(transform, Enums.Btn04Txt).text = $"返回";
                 QueryComponent<Button>(transform, Enums.Btn01).onClick.AddListener(() =>
                 {
-                    if(SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState!=0)
+                    if(sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState!=0)
                     {
                         SetShowTips(false, "该点无法建造！");
                         HideAndAnim();
@@ -113,13 +121,13 @@ public class UIPiMenu : UICore
                     }
                     locadGame=Resources.Load<GameObject>("Prefabs/Turrent/FattyCatapultG") as GameObject;
                     cloneObject=Instantiate(locadGame);
-                    cloneObject.transform.position = SceneCroeEntity.Singletons.onClickVect;
-                    SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState = TypeName.NodeTypeName.AttTurret;
+                    cloneObject.transform.position = sceneEntity.onClickVect;
+                    sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState = TypeName.NodeTypeName.AttTurret;
                     HideAndAnim();
                 });
                 QueryComponent<Button>(transform, Enums.Btn02).onClick.AddListener(() =>
                 {
-                    if (SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState != 0)
+                    if (sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState != 0)
                     {
                         SetShowTips(false, "该点无法建造！");
                         HideAndAnim();
@@ -127,12 +135,12 @@ public class UIPiMenu : UICore
                     }
                     locadGame = Resources.Load<GameObject>("Prefabs/Turrent/FattyMissileG") as GameObject;
                     cloneObject = Instantiate(locadGame);
-                    cloneObject.transform.position = SceneCroeEntity.Singletons.onClickVect;
+                    cloneObject.transform.position = sceneEntity.onClickVect;
                     HideAndAnim();
                 });
                 QueryComponent<Button>(transform, Enums.Btn03).onClick.AddListener(() =>
                 {
-                    if (SceneCroeEntity.Singletons.NodeIdToDataDic[SceneCroeEntity.Singletons.onClickNode].ReadWriteNodeState != 0)
+                    if (sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState != 0)
                     {
                         SetShowTips(false, "该点无法建造！");
                         HideAndAnim();
@@ -140,7 +148,7 @@ public class UIPiMenu : UICore
                     }
                     locadGame = Resources.Load<GameObject>("Prefabs/Turrent/FattyMissileGSingle") as GameObject;
                     cloneObject = Instantiate(locadGame);
-                    cloneObject.transform.position = SceneCroeEntity.Singletons.onClickVect;
+                    cloneObject.transform.position = sceneEntity.onClickVect;
                     HideAndAnim();
                 });
                 QueryComponent<Button>(transform, Enums.Btn04).onClick.AddListener(() =>
@@ -185,7 +193,7 @@ public class UIPiMenu : UICore
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit();
+        UnityEngine.Application.Quit();
 #endif
     }
     private void OnEnable()

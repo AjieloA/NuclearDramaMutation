@@ -6,37 +6,20 @@ using UnityEngine.UI;
 
 public class SceneCore : Singleton<SceneCore>
 {
-    [Tooltip("地图原点")]
-    protected Vector3 basePoint;
-
-    [Tooltip("六边形边长")]
-    protected float hexLineLength;
-
-    [Tooltip("横向排列六边形数量")]
-    protected int MapHorizontalCount;
-
-    [Tooltip("纵向排列六边形数量")]
-    protected int MapVerticalCount;
-
-    protected float gridHeight;
-
-
-
-    protected GameObject meshParent;
-    //需要Load的资源
-    protected GameObject linePrefab;
-    protected Material material;
-
+    public SceneCroeEntity GetSceneEntity()
+    {
+        return EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+    }
     protected bool SetMapHorizontalCount(int _count)
     {
-        MapHorizontalCount = _count;
-        return MapHorizontalCount == _count;
+        GetSceneEntity().MapHorizontalCount = _count;
+        return GetSceneEntity().MapHorizontalCount == _count;
     }
 
     protected bool SetMapVerticalCount(int _count)
     {
-        MapVerticalCount = _count;
-        return MapVerticalCount == _count;
+        GetSceneEntity().MapVerticalCount = _count;
+        return GetSceneEntity().MapVerticalCount == _count;
     }
     /// <summary>
     /// 获取和加载LinePrefab
@@ -46,12 +29,12 @@ public class SceneCore : Singleton<SceneCore>
     /// <returns></returns>
     public GameObject GetLinePrefab(string _path,bool _isReinstall)
     {
-        if (linePrefab == null||_isReinstall)
+        if (GetSceneEntity().linePrefab == null||_isReinstall)
         {
-            linePrefab = Resources.Load<GameObject>(_path);
-            if (linePrefab != null)
+            GetSceneEntity().linePrefab = Resources.Load<GameObject>(_path);
+            if (GetSceneEntity().linePrefab != null)
             {
-                return linePrefab;
+                return GetSceneEntity().linePrefab;
             }
             else
             {
@@ -61,7 +44,7 @@ public class SceneCore : Singleton<SceneCore>
         }
         else
         {
-            return linePrefab;
+            return GetSceneEntity().linePrefab;
         }
     }
     /// <summary>
@@ -72,12 +55,12 @@ public class SceneCore : Singleton<SceneCore>
     /// <returns></returns>
     protected Material SetMeshMaterial(string _path,bool _isReinstall)
     {
-        if (material == null||_isReinstall)
+        if (GetSceneEntity().material == null||_isReinstall)
         {
-            material = Resources.Load<Material>(_path);
-            if (material != null)
+            GetSceneEntity().material = Resources.Load<Material>(_path);
+            if (GetSceneEntity().material != null)
             {
-                return material;
+                return GetSceneEntity().material;
             }
             else
             {
@@ -87,19 +70,19 @@ public class SceneCore : Singleton<SceneCore>
         }
         else
         {
-            return material;
+            return GetSceneEntity().material;
         }
     }
 
     protected bool SetHexLineLength(int _length)
     {
-        hexLineLength = _length;
-        return hexLineLength == _length;
+        GetSceneEntity().hexLineLength = _length;
+        return GetSceneEntity().hexLineLength == _length;
     }
 
-    public bool GetAsyncLoadScene(string _sceneName)
+    public bool GetAsyncLoadScene(string _sceneName, System.Action _action, params object[] _params)
     {
-        StartCoroutine(IEAsyncLoadScene(_sceneName));
+        StartCoroutine(IEAsyncLoadScene(_sceneName,_action));
         return true;
     }
 
@@ -108,11 +91,11 @@ public class SceneCore : Singleton<SceneCore>
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit();
+        UnityEngine.Application.Quit();
 #endif
     }
 
-    private IEnumerator IEAsyncLoadScene(string _sceneName)
+    private IEnumerator IEAsyncLoadScene(string _sceneName, System.Action _action, params object[] _params)
     {
         Debug.Log("AsyncLoadScene_Button");
         AsyncOperation _async = SceneManager.LoadSceneAsync(_sceneName);
@@ -135,7 +118,7 @@ public class SceneCore : Singleton<SceneCore>
         yield return new WaitForSeconds(1f);
         UICore.Singletons.CloseShowUI("IrregularCircle");
         UICore.Singletons.CloseShowUI("Init");
-        
+        _action?.Invoke();
         yield return null;
     }
 

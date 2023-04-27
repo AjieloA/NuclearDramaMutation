@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class MapGridManager : SceneCore
 {
+    private SceneCroeEntity sceneEntity;
+
     private void Awake()
     {
         Init();
@@ -22,29 +24,30 @@ public class MapGridManager : SceneCore
 
     public void Init()
     {
+        sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
         SetMapHorizontalCount(20);
         SetMapVerticalCount(20);
         SetHexLineLength(1);
         GetLinePrefab($"{TypeName.ResourcesTypeName.ResourcesPrefabs}Line", true);
         SetMeshMaterial($"{TypeName.ResourcesTypeName.ResourcesMaterials}Mesh", true);
-        meshParent = new GameObject("MeshParent");
+        sceneEntity.meshParent = new GameObject("MeshParent");
     }
 
     public void CreatHexGridForMap()
     {
-        gridHeight = Mathf.Sqrt(hexLineLength * hexLineLength - (hexLineLength / 2) * (hexLineLength / 2)) * 2;//计算六边形高度；
-        Vector3 _onePoint = new Vector3(basePoint.x + hexLineLength, basePoint.y, basePoint.z + gridHeight / 2);//基于地图原点计算第一个六边形的中心坐标；
-        for (int i = 0; i < MapHorizontalCount; i++)
+        sceneEntity.gridHeight = Mathf.Sqrt(sceneEntity.hexLineLength * sceneEntity.hexLineLength - (sceneEntity.hexLineLength / 2) * (sceneEntity.hexLineLength / 2)) * 2;//计算六边形高度；
+        Vector3 _onePoint = new Vector3(sceneEntity.basePoint.x + sceneEntity.hexLineLength, sceneEntity.basePoint.y, sceneEntity.basePoint.z + sceneEntity.gridHeight / 2);//基于地图原点计算第一个六边形的中心坐标；
+        for (int i = 0; i < sceneEntity.MapHorizontalCount; i++)
         {
-            for (int j = 0; j < MapVerticalCount; j++)
+            for (int j = 0; j < sceneEntity.MapVerticalCount; j++)
             {
                 if (i % 2 == 0)
                 {
-                    CreatPoint(new Vector2(i, j), new Vector3(_onePoint.x + 1.5f * hexLineLength * i, _onePoint.y, _onePoint.z + gridHeight * j));
+                    CreatPoint(new Vector2(i, j), new Vector3(_onePoint.x + 1.5f * sceneEntity.hexLineLength * i, _onePoint.y, _onePoint.z + sceneEntity.gridHeight * j));
                 }
                 else
                 {
-                    CreatPoint(new Vector2(i, j), new Vector3(_onePoint.x + 1.5f * hexLineLength * i, _onePoint.y, _onePoint.z + gridHeight * j + gridHeight / 2));
+                    CreatPoint(new Vector2(i, j), new Vector3(_onePoint.x + 1.5f * sceneEntity.hexLineLength * i, _onePoint.y, _onePoint.z + sceneEntity.gridHeight * j + sceneEntity.gridHeight / 2));
                 }
             }
         }
@@ -57,31 +60,31 @@ public class MapGridManager : SceneCore
     {
         List<Vector3> _nodePoints = new List<Vector3>();
         _nodePoints.Add(_point);//中心点；
-        _nodePoints.Add(new Vector3(_point.x - hexLineLength / 2, _point.y, _point.z - gridHeight / 2));
-        _nodePoints.Add(new Vector3(_point.x - hexLineLength, _point.y, _point.z));
-        _nodePoints.Add(new Vector3(_point.x - hexLineLength / 2, _point.y, _point.z + gridHeight / 2));
-        _nodePoints.Add(new Vector3(_point.x + hexLineLength / 2, _point.y, _point.z + gridHeight / 2));
-        _nodePoints.Add(new Vector3(_point.x + hexLineLength, _point.y, _point.z));
-        _nodePoints.Add(new Vector3(_point.x + hexLineLength / 2, _point.y, _point.z - gridHeight / 2));
-        SceneCroeEntity.Singletons.NodeIdToDataDic.Add($"{_center}", new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
-        SceneCroeEntity.Singletons.NodeVecToDateDic.Add($"{_point}", new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
+        _nodePoints.Add(new Vector3(_point.x - sceneEntity.hexLineLength / 2, _point.y, _point.z - sceneEntity.gridHeight / 2));
+        _nodePoints.Add(new Vector3(_point.x - sceneEntity.hexLineLength, _point.y, _point.z));
+        _nodePoints.Add(new Vector3(_point.x - sceneEntity.hexLineLength / 2, _point.y, _point.z + sceneEntity.gridHeight / 2));
+        _nodePoints.Add(new Vector3(_point.x + sceneEntity.hexLineLength / 2, _point.y, _point.z + sceneEntity.gridHeight / 2));
+        _nodePoints.Add(new Vector3(_point.x + sceneEntity.hexLineLength, _point.y, _point.z));
+        _nodePoints.Add(new Vector3(_point.x + sceneEntity.hexLineLength / 2, _point.y, _point.z - sceneEntity.gridHeight / 2));
+        sceneEntity.NodeIdToDataDic.Add($"{_center}", new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
+        sceneEntity.NodeVecToDateDic.Add($"{_point}", new MapNodeData(_center, _point, _nodePoints, TypeName.NodeTypeName.Empty));
     }
 
     public void CreatLine()
     {
         GameObject _lineParent = new GameObject("LineParent");
         _lineParent.transform.position = new Vector3(0, 0, 0);
-        foreach (var _item in SceneCroeEntity.Singletons.NodeIdToDataDic)
+        foreach (var _item in sceneEntity.NodeIdToDataDic)
         {
             Vector3[] _vertives = new Vector3[7];
-            _vertives[0] = SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints[0];
-            GameObject _game = Instantiate(linePrefab);
+            _vertives[0] = sceneEntity.NodeIdToDataDic[_item.Key].GetNodePoints[0];
+            GameObject _game = Instantiate(sceneEntity.linePrefab);
             LineRenderer _lineRenderer = _game.transform.GetComponent<LineRenderer>();
             _lineRenderer.positionCount = 6;
-            for (int i = 1; i < SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints.Count; i++)
+            for (int i = 1; i < sceneEntity.NodeIdToDataDic[_item.Key].GetNodePoints.Count; i++)
             {
-                _lineRenderer.SetPosition(i - 1, SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints[i]);
-                _vertives[i] = SceneCroeEntity.Singletons.NodeIdToDataDic[_item.Key].GetNodePoints[i];
+                _lineRenderer.SetPosition(i - 1, sceneEntity.NodeIdToDataDic[_item.Key].GetNodePoints[i]);
+                _vertives[i] = sceneEntity.NodeIdToDataDic[_item.Key].GetNodePoints[i];
             }
             _game.transform.parent = _lineParent.transform;
             CreatMesh(_vertives, StrToVector2(_item.Key));
@@ -93,7 +96,7 @@ public class MapGridManager : SceneCore
         Mesh _mesh;
         MeshFilter _filter;
         GameObject _game = new GameObject();
-        _game.transform.parent = meshParent.transform;
+        _game.transform.parent = sceneEntity.meshParent.transform;
         _game.name = _vec2.ToString();
         _game.AddComponent<MeshFilter>();
         _game.AddComponent<MeshRenderer>();
@@ -111,11 +114,11 @@ public class MapGridManager : SceneCore
             0,6,1
         };
         _mesh.triangles = triangles;
-        _game.GetComponent<MeshRenderer>().material = material;
+        _game.GetComponent<MeshRenderer>().material = sceneEntity.material;
         _game.AddComponent<MeshCollider>();
         _game.AddComponent<NodeMouseOnClick>();
-        float _x = SceneCroeEntity.Singletons.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.x;
-        float _y = SceneCroeEntity.Singletons.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.z;
+        float _x = sceneEntity.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.x;
+        float _y = sceneEntity.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.z;
     }
     public Vector2 StrToVector2(string _str)
     {
