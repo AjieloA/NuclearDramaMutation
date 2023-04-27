@@ -10,7 +10,7 @@
  
 </table>
 
-### Manger>>>方法调用与生命周期管理
+### Manager>>>方法调用与生命周期管理
 <table>
 
 </table>
