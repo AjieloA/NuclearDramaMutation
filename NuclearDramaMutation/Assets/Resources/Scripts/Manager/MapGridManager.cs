@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+
 
 public class MapGridManager : SceneCore
 {
@@ -19,13 +19,22 @@ public class MapGridManager : SceneCore
 
     private void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneCore.Singletons.GetReAsyncLoadScene("FightOne", () =>
+            {
+                GetSceneEntity().NodeIdToDataDic.Clear();
+                GetSceneEntity().NodeVecToDateDic.Clear();
+                Application.Singletons.CreatMapManger();
+            });
+            Debug.LogError("重新加载");
+        }
     }
 
     public void Init()
     {
         sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
-        SetMapHorizontalCount(20);
+        SetMapHorizontalCount(40);
         SetMapVerticalCount(20);
         SetHexLineLength(1);
         GetLinePrefab($"{TypeName.ResourcesTypeName.ResourcesPrefabs}Line", true);
@@ -89,8 +98,18 @@ public class MapGridManager : SceneCore
             _game.transform.parent = _lineParent.transform;
             CreatMesh(_vertives, StrToVector2(_item.Key));
         }
-    }
+        //CreatStartAndEnd();
+        CreatMonsterEndPoint();
+        CreatMonsterStartPoint("MetalonGreen", 10, 2);
+        EventCore.Instance.AddEventListener(TypeName.EventTypeName.CreatMonter, () =>
+        {
 
+            CreatMonsterStartPoint("MetalonRed", 10, 2);
+
+        });
+        //UICore.Singletons.OpenUIShow("HeadMenu", UIShowLayer.DiaLog, (game) =>{});
+        StartCoroutine(UICore.Singletons.AsyncLoadUIPrefabIE("HeadMenu", UIShowLayer.DiaLog, (game) => { }));
+    }
     public void CreatMesh(Vector3[] _vertives, Vector2 _vec2)
     {
         Mesh _mesh;
@@ -120,6 +139,159 @@ public class MapGridManager : SceneCore
         float _x = sceneEntity.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.x;
         float _y = sceneEntity.NodeIdToDataDic[$"{_vec2}"].GetNodeVector.z;
     }
+    public void CreatMonsterEndPoint()
+    {
+        //生成行数据
+        int _rowEnd = CreatNum(sceneEntity.MapHorizontalCount);
+        //生成列数据
+        int _colEnd = CreatNum(sceneEntity.MapVerticalCount);
+        if (!sceneEntity.NodeIdToDataDic[$"{new Vector2(_rowEnd, _colEnd)}"].GetIsCreat())
+        {
+            CreatMonsterEndPoint();
+            return;
+        }
+        //存储数据
+        sceneEntity.endPoint = $"{new Vector2(_rowEnd, _colEnd)}";
+        sceneEntity.endVec = new Vector2(_rowEnd, _colEnd);
+
+        GetVFXToScene("End", sceneEntity.NodeIdToDataDic[sceneEntity.endPoint].GetNodeVector, (game) => { });
+
+        sceneEntity.NodeIdToDataDic[sceneEntity.endPoint].ReadWriteNodeState = TypeName.NodeTypeName.Point;
+
+
+        //生成数据
+        int CreatNum(int _section)
+        {
+            int _one = Random.Range(0, _section);
+            return _one;
+        }
+    }
+    public void CreatMonsterStartPoint(string _monsterName,int _monsterCount,float _executeTime)
+    {
+        Vector2 _vec = CreatNum(sceneEntity.endVec);
+        if (!sceneEntity.NodeIdToDataDic[$"{_vec}"].GetIsCreat())
+        {
+            CreatMonsterStartPoint(_monsterName,_monsterCount,_executeTime);
+            return;
+        }
+        //存储数据
+        sceneEntity.startPoint = $"{_vec}";
+        sceneEntity.startVec =_vec;
+
+        GetVFXToScene("Start", sceneEntity.NodeIdToDataDic[sceneEntity.startPoint].GetNodeVector, (game) => { });
+        sceneEntity.NodeIdToDataDic[sceneEntity.startPoint].ReadWriteNodeState = TypeName.NodeTypeName.Point;
+
+        AStarMove(sceneEntity.startPoint, sceneEntity.endPoint, () =>
+        {
+            Application.Singletons.CreatRoleManager();
+            GameObject _startPoint = new GameObject("StartPoint");
+            GameObject _endPoint = new GameObject("EndPoint");
+            _startPoint.transform.position = sceneEntity.NodeIdToDataDic[sceneEntity.startPoint].GetNodeVector;
+            _endPoint.transform.position = sceneEntity.NodeIdToDataDic[sceneEntity.endPoint].GetNodeVector;
+            _startPoint.transform.AddComponent<CreatMonsterManager>();
+            CreatMonsterManager _creatMonster = _startPoint.transform.GetComponent<CreatMonsterManager>();
+            _creatMonster.Init(_monsterName, _monsterCount, _executeTime);
+        });
+
+        //生成数据
+        Vector2 CreatNum(Vector2 _vec)
+        {
+            int _eX = (int)_vec.x;
+            int _eY = (int)_vec.y;
+            int _x = 0;
+            int _y = 0;
+            return new Vector2(CreatNumXY(_eX, sceneEntity.MapHorizontalCount), CreatNumXY(_eY, sceneEntity.MapVerticalCount));
+
+            int CreatNumXY(int _one,int _section)
+            {
+                int _two = 0;
+                if (_one <= _section / 2)
+                    if (_one + _section / 2 < _section)
+                        _two = Random.Range(_one + _section / 2, _section);
+                    else
+                        _two = _section - 1;
+                else
+                {
+                    if (_one - _section / 2 > 0)
+                        _two = Random.Range(0, _one - _section / 2);
+                    else
+                        _two = 0;
+                }
+                return _two;
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// 创建怪物生成点和结束点
+    /// </summary>
+    public void CreatStartAndEnd()
+    {
+
+        //生成行数据
+        (int, int) _rowData = CreatNum(sceneEntity.MapHorizontalCount);
+        int _rowStart = _rowData.Item1;
+        int _rowEnd = _rowData.Item2;
+        //生成列数据
+        (int, int) _colData = CreatNum(sceneEntity.MapVerticalCount);
+        int _colStart = _colData.Item1;
+        int _colEnd = _colData.Item2;
+        if (!sceneEntity.NodeIdToDataDic[$"{new Vector2(_rowStart, _colStart)}"].GetIsCreat() || !sceneEntity.NodeIdToDataDic[$"{new Vector2(_rowEnd, _colEnd)}"].GetIsCreat())
+        {
+            CreatStartAndEnd();
+            return;
+        }
+        //存储数据
+        sceneEntity.startPoint = $"{new Vector2(_rowStart, _colStart)}";
+        sceneEntity.endPoint = $"{new Vector2(_rowEnd, _colEnd)}";
+        
+        //Debug.LogError($"startPoint>>{sceneEntity.startPoint}******endPoint>>{sceneEntity.endPoint}");
+        //加载特效
+        GetVFXToScene("Start", sceneEntity.NodeIdToDataDic[sceneEntity.startPoint].GetNodeVector, (game) => { });
+        GetVFXToScene("End", sceneEntity.NodeIdToDataDic[sceneEntity.endPoint].GetNodeVector, (game) => { });
+        //更改节点状态
+        sceneEntity.NodeIdToDataDic[sceneEntity.startPoint].ReadWriteNodeState = TypeName.NodeTypeName.Point;
+        sceneEntity.NodeIdToDataDic[sceneEntity.endPoint].ReadWriteNodeState = TypeName.NodeTypeName.Point;
+        //
+        AStarMove(sceneEntity.startPoint, sceneEntity.endPoint, () =>
+        {
+            Application.Singletons.CreatRoleManager();
+            GameObject _startPoint = new GameObject("StartPoint");
+            GameObject _endPoint = new GameObject("EndPoint");
+            _startPoint.transform.position = sceneEntity.NodeIdToDataDic[sceneEntity.startPoint].GetNodeVector;
+            _endPoint.transform.position = sceneEntity.NodeIdToDataDic[sceneEntity.endPoint].GetNodeVector;
+            _startPoint.transform.AddComponent<CreatMonsterManager>();
+            CreatMonsterManager _creatMonster = _startPoint.transform.GetComponent<CreatMonsterManager>();
+            _creatMonster.Init("MetalonGreen", 10, 2);
+        });
+
+
+        //生成数据
+        (int, int) CreatNum(int _section)
+        {
+            int _one = Random.Range(0, _section);
+            int _two = 0;
+            if (_one <= _section / 2)
+                if (_one + _section / 2 < _section)
+                    _two = Random.Range(_one + _section / 2, _section);
+                else
+                    _two = _section - 1;
+            else
+            {
+                if (_one - _section / 2 > 0)
+                    _two = Random.Range(0, _one - _section / 2);
+                else
+                    _two = 0;
+            }
+            return (_one, _two);
+        }
+    }
+    /// <summary>
+    /// string转换成vector2
+    /// </summary>
+    /// <param name="_str"></param>
+    /// <returns></returns>
     public Vector2 StrToVector2(string _str)
     {
         string[] _atrArray = _str.Split(',');
@@ -128,4 +300,5 @@ public class MapGridManager : SceneCore
         return new Vector2(_x, _y);
 
     }
+
 }

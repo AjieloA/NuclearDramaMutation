@@ -38,7 +38,7 @@ public class EventCore
     public Dictionary<string, IEventInfo> eventActionDic = new Dictionary<string, IEventInfo>();
 
     //添加事件
-    public void AddEventListener(string name, UnityAction action)
+    public void AddEventListener(string name, UnityAction action,params object[] objects)
     {
         if (eventActionDic.ContainsKey(name))
             (eventActionDic[name] as EventInfo).eventAction += action;
@@ -82,7 +82,7 @@ public class EventCore
     }
 
     //触发事件
-    public void TiggerEventListener(string name)
+    public void TiggerEventListener(string name,params object[] objects)
     {
         if (eventActionDic.ContainsKey(name))
             (eventActionDic[name] as EventInfo).eventAction?.Invoke();

@@ -24,7 +24,7 @@ public class Application : Singleton<Application>
     }
     public void CreatMapManger()
     {
-        CreatComponent<MapGridManager>(false, "MapGridManager", (game) => { });
+        CreatComponent<MapGridManager>(false, "MapGridManager", (game) =>{ });
     }
     public void CreatUiManager(System.Action<GameObject> _action, params object[] _params)
     {
@@ -37,6 +37,13 @@ public class Application : Singleton<Application>
         CreatComponent<UICore>(true, "UICore", (game) =>
         {
             game.GetComponent<UICore>().GetUiCroeEntity();
+        });
+    }
+    public void CreatRoleManager()
+    {
+        CreatComponent<RoleManager>(true, "RoleManager", (game) =>
+        {
+
         });
     }
 }

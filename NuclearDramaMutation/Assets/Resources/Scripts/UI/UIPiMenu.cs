@@ -54,6 +54,7 @@ public class UIPiMenu : UICore
                 QueryComponent<Text>(transform, Enums.Btn04Txt).text = $"³É¾Í";
                 QueryComponent<Button>(transform, Enums.Btn01).onClick.AddListener(() =>
                 {
+
                     EndAndAnim();
                     OpenUIShow("IrregularCircle", UIShowLayer.Default, (game) =>
                     {
@@ -122,7 +123,8 @@ public class UIPiMenu : UICore
                     locadGame=Resources.Load<GameObject>("Prefabs/Turrent/FattyCatapultG") as GameObject;
                     cloneObject=Instantiate(locadGame);
                     cloneObject.transform.position = sceneEntity.onClickVect;
-                    sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState = TypeName.NodeTypeName.AttTurret;
+                    sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState = TypeName.NodeTypeName.Turret;
+                    cloneObject.AddComponent<TurrentFight>();
                     HideAndAnim();
                 });
                 QueryComponent<Button>(transform, Enums.Btn02).onClick.AddListener(() =>

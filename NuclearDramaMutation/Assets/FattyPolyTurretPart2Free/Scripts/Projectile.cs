@@ -18,9 +18,11 @@ public class Projectile : MonoBehaviour {
     //public float dist;
 
     public ParticleSystem explosion;
+    private RoleEntity roleEntity;
 
     private void Start()
     {
+        roleEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_ROLEENETITY] as RoleEntity;
         if (catapult)
         {
             lockOn = true;
@@ -102,10 +104,10 @@ public class Projectile : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Player")
+        if (other.transform.tag == "Monster")
         {
+            roleEntity.monsterEntityDic[int.Parse(other.name)].SetHp(0);
             Vector3 dir = other.transform.position - transform.position;
-            //Vector3 knockBackPos = other.transform.position * (-dir.normalized * knockBack);
             Vector3 knockBackPos = other.transform.position + (dir.normalized * knockBack);
             knockBackPos.y = 1;
             other.transform.position = knockBackPos;

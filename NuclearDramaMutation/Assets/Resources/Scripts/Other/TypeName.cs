@@ -6,6 +6,8 @@ public static class TypeName
         public const string ResourcesPrefabs = "Prefabs/";
         public const string ResourcesUIPrefabes = "Prefabs/UI/";
         public const string ResourcesUIScripts = "Scripts/UI/";
+        public const string ResourcesSceneVFX = "Prefabs/VFX/";
+        public const string ResourcesMonster = "Prefabs/Monster/Monsters/";
     }
 
     public class SceneTypeName
@@ -40,23 +42,14 @@ public static class TypeName
 
     public class EventTypeName
     {
+        public const string CreatMonter="CREATMONSTER";
     }
     public enum NodeTypeName
     {
         Empty=0,
-        AttTurret=1,
-        ProTurret=2,
-        RecTurret=3,
-        RockObstacle=4,
-        TreeObstacle=5,
-        Gold=6,
-        Silver=7,
-        Copper=8,
-        Iron=9,
-        RedCrystal=10,
-        GreeCrystal=11,
-        PurpleCrystal=12,
-        Monster=13
+        Turret=1,
+        Path=2,
+        Point=3
 
     }
 }

@@ -5,6 +5,7 @@ public enum Entity
 {
     GLOBAL_UICROEENTITY,
     GLOBAL_SCENECROENTITY,
+    GLOBAL_ROLEENETITY,
 }
 public class EntityManager : Singleton<EntityManager>
 {
@@ -17,5 +18,6 @@ public class EntityManager : Singleton<EntityManager>
     {
         entityManagers.Add(Entity.GLOBAL_SCENECROENTITY, new SceneCroeEntity());
         entityManagers.Add(Entity.GLOBAL_UICROEENTITY, new UICroeEntity());
+        entityManagers.Add(Entity.GLOBAL_ROLEENETITY, new RoleEntity());
     }
 }

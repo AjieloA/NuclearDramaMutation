@@ -216,6 +216,8 @@ public class UICore : Singleton<UICore>
     /// <param name="_tips"></param>
     public void SetShowTips(bool _isResident, string _tips)
     {
+        
+
         if (_isResident)
             OpenUIShow("ShowTips", UIShowLayer.Top, (game) =>
             {
