@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneCore : Singleton<SceneCore>
 {
-    public SceneCroeEntity GetSceneEntity()
+
+    public SceneCoreEntity GetSceneEntity()
     {
-        return EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        return EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
     }
     protected bool SetMapHorizontalCount(int _count)
     {
@@ -112,15 +114,15 @@ public class SceneCore : Singleton<SceneCore>
         }
         UICore.Singletons.Query<UIIrregularCircle>("IrregularCircle").RefreshProgressTxt(100);
 
-        UICore.Singletons.OpenUIShow("PiMenu", UIShowLayer.DiaLog, (game) =>
+        UICore.Singletons.OpenUIWidget("PiMenu", UIShowLayer.DiaLog, (game) =>
         {
             UICore.Singletons.ShowHide("PiMenu", (trans) => { });
             game.GetComponent<UIPiMenu>().Refresh(1);
         });
 
         yield return new WaitForSeconds(1f);
-        UICore.Singletons.CloseShowUI("IrregularCircle");
-        UICore.Singletons.CloseShowUI("Init");
+        UICore.Singletons.CloseUIWidget("IrregularCircle");
+        UICore.Singletons.CloseUIWidget("Init");
         _action?.Invoke();
         yield return null;
     }
@@ -163,7 +165,7 @@ public class SceneCore : Singleton<SceneCore>
     }
     public IEnumerator GetVFXToSceneIE(string _name, Vector3 _vector, System.Action<GameObject> _action)
     {
-        ResourceRequest _request = Resources.LoadAsync(TypeName.ResourcesTypeName.ResourcesSceneVFX + _name);
+        ResourceRequest _request = Resources.LoadAsync(TypeName.ResourcesTypeName.RSceneVFX + _name);
         while (!_request.isDone)
         {
             yield return null;
@@ -179,10 +181,10 @@ public class SceneCore : Singleton<SceneCore>
     /// </summary>
     /// <param name="_key"></param>
     /// <param name="_endVec"></param>
-    public void AStarMove(string _key, string _endVec,System.Action _action)
+    public void AStarMove(string _key, string _endVec, System.Action _action)
     {
         Dictionary<string, NodeDate> nodeDataDic = new Dictionary<string, NodeDate>();
-        GameObject linePrefab = Instantiate(SceneCore.Singletons.GetLinePrefab($"{TypeName.ResourcesTypeName.ResourcesPrefabs}Line", true));
+        GameObject linePrefab = Instantiate(SceneCore.Singletons.GetLinePrefab($"{TypeName.ResourcesTypeName.RPrefabs}Line", true));
         LineRenderer lineRenderer = linePrefab.GetComponent<LineRenderer>();
         lineRenderer.positionCount = 0;
         lineRenderer.startColor = Color.black;
@@ -284,18 +286,31 @@ public class SceneCore : Singleton<SceneCore>
                 else
                     return $"{new Vector3(9999, 9999, 9999)}";
             }
-
         }
-
-
-
-
-
-
+    }
+    public void GetPrefab(string _prefabPath, System.Action<GameObject> _action = null)
+    {
+        StartCoroutine(GetPrefabIE(_prefabPath, _action));
+    }
+    public IEnumerator GetPrefabIE(string _prefabPath, System.Action<GameObject> _action)
+    {
+        GameObject _game = null;
+        ResourceRequest _request = Resources.LoadAsync(_prefabPath);
+        while (!_request.isDone)
+        {
+            yield return _request;
+        }
+        _game = _request.asset as GameObject;
+        _action?.Invoke(_game);
+        yield return null;
 
     }
-
-    
+    public void AddScript<T>(Transform _trans,System.Action<T> _action=null) where T : Component
+    {
+        _trans.AddComponent<T>() ;
+        T _t = _trans.GetComponent<T>();
+        _action?.Invoke(_t);
+    }
 }
 public class NodeDate
 {
@@ -372,4 +387,6 @@ public class MapNodeData
     {
         get { return nodeId; }
     }
+
+
 }

@@ -16,7 +16,7 @@ public class EntityManager : Singleton<EntityManager>
     }
     public void Init()
     {
-        entityManagers.Add(Entity.GLOBAL_SCENECROENTITY, new SceneCroeEntity());
+        entityManagers.Add(Entity.GLOBAL_SCENECROENTITY, new SceneCoreEntity());
         entityManagers.Add(Entity.GLOBAL_UICROEENTITY, new UICroeEntity());
         entityManagers.Add(Entity.GLOBAL_ROLEENETITY, new RoleEntity());
     }

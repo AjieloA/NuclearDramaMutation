@@ -20,7 +20,7 @@ public class UICore : Singleton<UICore>
     /// 异步加载UI预制体到场景中
     /// </summary>
     /// <param name="_name"></param>
-    public void OpenUIShow(string _name, UIShowLayer _uIShowLayer, System.Action<GameObject> _action)
+    public void OpenUIWidget(string _name, UIShowLayer _uIShowLayer, System.Action<GameObject> _action)
     {
         StartCoroutine(AsyncLoadUIPrefabIE(_name, _uIShowLayer, _action));
     }
@@ -30,10 +30,11 @@ public class UICore : Singleton<UICore>
 
         //Debug.LogError($"{_name}>>>Query>>>");
         //加载资源
-        ResourceRequest _prefab = Resources.LoadAsync(TypeName.ResourcesTypeName.ResourcesUIPrefabes + _name);
+        ResourceRequest _prefab = Resources.LoadAsync(TypeName.ResourcesTypeName.RUIPrefabes + _name);
         while (!_prefab.isDone)
         {
-            yield return null;
+            _prefab = Resources.LoadAsync(TypeName.ResourcesTypeName.RUIPrefabes + _name);
+            yield return _prefab;
         }
         //实例化资源
         GameObject _game = Instantiate(_prefab.asset as GameObject, GameObject.Find("UI").transform.GetChild((int)_uIShowLayer));
@@ -45,7 +46,7 @@ public class UICore : Singleton<UICore>
             dic.Add(_allGame[i].name, _allGame[i]);
         }
         if (GetUiCroeEntity().QueryUI.ContainsKey(_name))
-            CloseShowUI(_name);
+            CloseUIWidget(_name);
         GetUiCroeEntity().QueryUI.Add(_name, new Dictionary<string, Transform>(dic));
         dic.Clear();
         //获取对应脚本
@@ -60,7 +61,7 @@ public class UICore : Singleton<UICore>
     /// 删除场景中打开的UI物体
     /// </summary>
     /// <param name="_name"></param>
-    public void CloseShowUI(string _name)
+    public void CloseUIWidget(string _name)
     {
         if (GetUiCroeEntity().QueryUI.ContainsKey(_name))
             foreach (var _item in GetUiCroeEntity().QueryUI[_name])
@@ -76,7 +77,7 @@ public class UICore : Singleton<UICore>
     /// 关闭打开的UI
     /// </summary>
     /// <param name="_name"></param>
-    public void CloseShowUI(Transform _name)
+    public void CloseUIWidget(Transform _name)
     {
         if (GetUiCroeEntity().QueryUI.ContainsKey(_name.name))
             foreach (var _item in GetUiCroeEntity().QueryUI[_name.name])
@@ -219,13 +220,13 @@ public class UICore : Singleton<UICore>
         
 
         if (_isResident)
-            OpenUIShow("ShowTips", UIShowLayer.Top, (game) =>
+            OpenUIWidget("ShowTips", UIShowLayer.Top, (game) =>
             {
                 if (game != null)
                     game.GetComponent<UIShowTips>().Refresh(_tips);
             });
         else
-            OpenUIShow("Tips", UIShowLayer.Top, (game) =>
+            OpenUIWidget("Tips", UIShowLayer.Top, (game) =>
             {
                 if (game != null)
                     game.GetComponent<UITips>().Refresh(_tips);

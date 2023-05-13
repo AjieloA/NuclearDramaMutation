@@ -51,7 +51,7 @@ public class UIShowTips : UICore
         canvasGroup.DOFade(0, DoSpeed).OnComplete(() => { CloseShow(); });
         void CloseShow()
         {
-            //CloseShowUI("ShowTips");
+            //CloseUIWidget("ShowTips");
         }
     }
     public void InitOnclick()

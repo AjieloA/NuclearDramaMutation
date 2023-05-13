@@ -2,12 +2,13 @@ public static class TypeName
 {
     public class ResourcesTypeName
     {
-        public const string ResourcesMaterials = "Materials/";
-        public const string ResourcesPrefabs = "Prefabs/";
-        public const string ResourcesUIPrefabes = "Prefabs/UI/";
-        public const string ResourcesUIScripts = "Scripts/UI/";
-        public const string ResourcesSceneVFX = "Prefabs/VFX/";
-        public const string ResourcesMonster = "Prefabs/Monster/Monsters/";
+        public const string RMaterials = "Materials/";
+        public const string RPrefabs = "Prefabs/";
+        public const string RUIPrefabes = "Prefabs/UI/";
+        public const string RUIScripts = "Scripts/UI/";
+        public const string RSceneVFX = "Prefabs/VFX/";
+        public const string RMonster = "Prefabs/Monster/Monsters/";
+        public const string RTurrent = "Prefabs/Turrent/";
     }
 
     public class SceneTypeName

@@ -3,10 +3,10 @@ using UnityEngine;
 public class NodeMouseOnClick : MonoBehaviour
 {
     private UICroeEntity _croeEntity;
-    private SceneCroeEntity _sceneEntity;
+    private SceneCoreEntity _sceneEntity;
     private void OnMouseDown()
     {
-        _sceneEntity=EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        _sceneEntity=EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
         _croeEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_UICROEENTITY] as UICroeEntity;
 
         if (UICore.Singletons.GetTransState("PiMenu"))

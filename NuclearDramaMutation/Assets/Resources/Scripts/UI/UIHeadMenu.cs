@@ -12,13 +12,13 @@ public class UIHeadMenu : UICore
         KillCountTxt
 
     }
-    private SceneCroeEntity croeEntity;
+    private SceneCoreEntity croeEntity;
     private Text coinTxt;
     private Text killCountTxt;
     private Button quitBtn;
     private void Awake()
     {
-        croeEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        croeEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
         Init();
     }
     public void Refresh()

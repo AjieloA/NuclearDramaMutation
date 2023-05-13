@@ -6,13 +6,13 @@ public class UIManager : UICore
     {
         DontDestroyOnLoad(this);
         GetUiCroeEntity().mainCanvas=transform.GetComponent<Canvas>();
-        OpenUIShow("Init", UIShowLayer.Default, (game) =>
+        OpenUIWidget("Init", UIShowLayer.Default, (game) =>
         {
         });
     }
     private void Start()
     {
-        OpenUIShow("PiMenu", UIShowLayer.DiaLog, (game) =>
+        OpenUIWidget("PiMenu", UIShowLayer.DiaLog, (game) =>
         {
             game.GetComponent<UIPiMenu>().Refresh(0);
         });

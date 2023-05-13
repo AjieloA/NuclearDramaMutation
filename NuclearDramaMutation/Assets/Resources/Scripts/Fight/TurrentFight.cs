@@ -13,6 +13,7 @@ public class TurrentFight : MonoBehaviour
         Rotate,
     }
     #region 数据
+    [Header("炮塔攻击相关数据")]
     /// <summary>
     /// 攻击目标
     /// </summary>
@@ -21,16 +22,15 @@ public class TurrentFight : MonoBehaviour
     /// <summary>
     /// 炮塔类型
     /// </summary>
-    private TurrentType turrentType = TurrentType.sling;
+    private TurrentType turrentType;
     private TurrentState turrentState = TurrentState.Rotate;
     /// <summary>
     /// 攻击间隔时间
     /// </summary>
     private float attackExecute;
-    /// <summary>
-    /// 锁定目标时间
-    /// </summary>
-    private float lookAtTime;
+    private GameObject ShellGame;
+    private string shellPath = "";
+    [Header("炮塔旋转相关数据")]
     private float rayRadius = 5;
     /// <summary>
     /// 炮塔旋转角度限制
@@ -38,33 +38,51 @@ public class TurrentFight : MonoBehaviour
     private float rotateAngle = 0f, rotateSpeed = 20f, useRotateNum = 0f;
     private Vector3 rotateImposeTrans = new Vector3(0, 135, 0);
     private Animator animator;
+    private float rayRotateRange = 90;
+    private int rayLineCount = 50;
+    private float rayInterval = 0.0f;
     /// <summary>
     /// 是否正方向旋转
     /// </summary>
     private bool isRight = true;
+
+    [Header("射线检测相关数据")]
     private Collider[] hitMonsters;
     private RaycastHit rayLineHit;
     private Vector3 rayVec;
-    private float rayRotateRange = 90;
-    private int rayLineCount = 50;
-    private float rayInterval = 0.0f;
+
     #endregion
 
     #region 初始化
 
     private void Awake()
     {
-        Init();
+
     }
     private void Start()
     {
     }
     public void Refresh()
     {
-        //RotateLoop();
+        Init();
     }
     public void Init()
     {
+        switch (turrentType)
+        {
+            case TurrentType.sling:
+                shellPath = TypeName.ResourcesTypeName.RTurrent + "Bullet_Missle";
+                break;
+            case TurrentType.rocket:
+                shellPath = TypeName.ResourcesTypeName.RTurrent + "Bullet_Catapult";
+                break;
+        }
+        SceneCore.Singletons.GetPrefab(shellPath, (_object) =>
+        {
+            if (_object != null)
+                ShellGame = _object;
+        });
+
         rayVec = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
         rayInterval = rayRotateRange / rayLineCount / 2;
         rotateTrans = transform.GetChild(0);
@@ -109,7 +127,7 @@ public class TurrentFight : MonoBehaviour
         for (int i = 0; i < rayLineCount; i++)
         {
             target = RayLine(Quaternion.Euler(0, i * rayInterval, 0), 20f) == null ? RayLine(Quaternion.Euler(0, -i * rayInterval, 0), 20f) : RayLine(Quaternion.Euler(0, i * rayInterval, 0), 20f);
-            if (target!=null&&target.CompareTag("Monster"))
+            if (target != null && target.CompareTag("Monster"))
                 turrentState = TurrentState.Attack;
         }
     }
@@ -130,14 +148,14 @@ public class TurrentFight : MonoBehaviour
         if (turrentState == TurrentState.Rotate)
         {
             LoopRayLine();
-            IldeRotate();
+            IdleRotate();
             //RayDetaction();
         }
     }
     /// <summary>
     /// 炮塔Idle状态旋转
     /// </summary>
-    public void IldeRotate()
+    public void IdleRotate()
     {
         if (isRight)
         {
@@ -154,6 +172,11 @@ public class TurrentFight : MonoBehaviour
                 isRight = true;
             rotateTrans.rotation = Quaternion.RotateTowards(rotateTrans.rotation, Quaternion.Euler(Vector3.zero), rotateSpeed * Time.deltaTime);
         }
+    }
+
+    public void FightTOMonster()
+    {
+
     }
     #endregion
 }

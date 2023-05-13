@@ -5,14 +5,17 @@ using UnityEngine;
 
 public class MapGridManager : SceneCore
 {
-    private SceneCroeEntity sceneEntity;
+    private SceneCoreEntity sceneEntity;
 
     private void Awake()
     {
         Init();
         CreatHexGridForMap();
     }
-
+    private void OnDestroy()
+    {
+        Debug.Log("end");
+    }
     private void Start()
     {
     }
@@ -33,12 +36,12 @@ public class MapGridManager : SceneCore
 
     public void Init()
     {
-        sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
         SetMapHorizontalCount(40);
         SetMapVerticalCount(20);
         SetHexLineLength(1);
-        GetLinePrefab($"{TypeName.ResourcesTypeName.ResourcesPrefabs}Line", true);
-        SetMeshMaterial($"{TypeName.ResourcesTypeName.ResourcesMaterials}Mesh", true);
+        GetLinePrefab($"{TypeName.ResourcesTypeName.RPrefabs}Line", true);
+        SetMeshMaterial($"{TypeName.ResourcesTypeName.RMaterials}Mesh", true);
         sceneEntity.meshParent = new GameObject("MeshParent");
     }
 
@@ -107,7 +110,7 @@ public class MapGridManager : SceneCore
             CreatMonsterStartPoint("MetalonRed", 10, 2);
 
         });
-        //UICore.Singletons.OpenUIShow("HeadMenu", UIShowLayer.DiaLog, (game) =>{});
+        //UICore.Singletons.OpenUIWidget("HeadMenu", UIShowLayer.DiaLog, (game) =>{});
         StartCoroutine(UICore.Singletons.AsyncLoadUIPrefabIE("HeadMenu", UIShowLayer.DiaLog, (game) => { }));
     }
     public void CreatMesh(Vector3[] _vertives, Vector2 _vec2)

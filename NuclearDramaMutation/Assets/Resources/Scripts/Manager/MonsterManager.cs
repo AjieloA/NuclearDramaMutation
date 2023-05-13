@@ -5,12 +5,12 @@ using UnityEngine;
 public class MonsterManager : RoleCore
 {
     public MonsterEntity monsterEntity;
-    private SceneCroeEntity scenerEntity;
+    private SceneCoreEntity scenerEntity;
     public Animator animator;
     private void Awake()
     {
         monsterEntity = GetRoleEntity().monsterEntityDic[int.Parse(transform.name)];
-        scenerEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        scenerEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
         animator = GetComponent<Animator>();
     }
     private void Start()

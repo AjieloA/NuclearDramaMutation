@@ -21,7 +21,7 @@ public class UITips : UICore
         _do.AppendInterval(0.3f);
         _do.Append(rectTransform.DOAnchorPos(new Vector2(0, Screen.height+100), 0.2f).OnComplete(() =>
         {
-            CloseShowUI(transform);
+            CloseUIWidget(transform);
         }));
 
     }

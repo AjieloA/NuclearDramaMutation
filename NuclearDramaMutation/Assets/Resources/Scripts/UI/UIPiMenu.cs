@@ -21,7 +21,7 @@ public class UIPiMenu : UICore
     private RectTransform rectTransform;
     private GameObject locadGame;
     private GameObject cloneObject;
-    private SceneCroeEntity sceneEntity;
+    private SceneCoreEntity sceneEntity;
     private void Awake()
     {
         rectTransform = QueryComponent<RectTransform>(transform, Enums.PiMenu);
@@ -29,7 +29,7 @@ public class UIPiMenu : UICore
     }
     private void Start()
     {
-        sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        sceneEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
     }
     public void Refresh(int _pattern)
     {
@@ -56,7 +56,7 @@ public class UIPiMenu : UICore
                 {
 
                     EndAndAnim();
-                    OpenUIShow("IrregularCircle", UIShowLayer.Default, (game) =>
+                    OpenUIWidget("IrregularCircle", UIShowLayer.Default, (game) =>
                     {
                         if (game != null)
                         {
@@ -124,7 +124,10 @@ public class UIPiMenu : UICore
                     cloneObject=Instantiate(locadGame);
                     cloneObject.transform.position = sceneEntity.onClickVect;
                     sceneEntity.NodeIdToDataDic[sceneEntity.onClickNode].ReadWriteNodeState = TypeName.NodeTypeName.Turret;
-                    cloneObject.AddComponent<TurrentFight>();
+                    SceneCore.Singletons.AddScript<TurrentFight>(cloneObject.transform, (_trans) =>
+                    {
+                        _trans.SetTurrentType(1);
+                    });
                     HideAndAnim();
                 });
                 QueryComponent<Button>(transform, Enums.Btn02).onClick.AddListener(() =>
@@ -171,7 +174,7 @@ public class UIPiMenu : UICore
     {
         transform.DOScale(new Vector3(0, 0, 0), 0.4f).OnComplete(() =>
         {
-            CloseShowUI(transform);
+            CloseUIWidget(transform);
         });
     }
     public void HideAndAnim()

@@ -26,7 +26,7 @@ public class RoleCore : Singleton<UICore>
     }
     private IEnumerator AsyncLoadMonsterIE(string _name, System.Action<GameObject> _action, params object[] _params)
     {
-        ResourceRequest _request = Resources.LoadAsync(TypeName.ResourcesTypeName.ResourcesMonster + _name);
+        ResourceRequest _request = Resources.LoadAsync(TypeName.ResourcesTypeName.RMonster + _name);
         while (_request.isDone)
             yield return null;
         _action?.Invoke(_request.asset as GameObject);

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CreatMonsterManager : RoleCore
 {
-    SceneCroeEntity scenerEntity;
+    SceneCoreEntity scenerEntity;
     private string monsterName;
     private int monsterCount;
     private float executeTime;
@@ -18,7 +18,7 @@ public class CreatMonsterManager : RoleCore
     }
     private void Awake()
     {
-        scenerEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCroeEntity;
+        scenerEntity = EntityManager.Singletons.entityManagers[Entity.GLOBAL_SCENECROENTITY] as SceneCoreEntity;
     }
     public void CreatMetalonGreen(string _name, int _count, float _time)
     {
