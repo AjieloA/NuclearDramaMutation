@@ -23,7 +23,7 @@ public class CreatUIPrefabScript : MonoBehaviour
         var enumValues = string.Join(",\n", _childrens);
         string _path = $"Assets/Resources/Scripts/UI/UI{_selectGame.name}.cs";
         string _scriptCode =
-            $"using UnityEngine;\n\n" +
+            $"using UnityEngine;\nusing UnityEngine.UI;\n\n" +
             $"public class UI{_selectGame.name} : UICore\n" +
             $"{{\n" +
             $"    enum Enums\n" +

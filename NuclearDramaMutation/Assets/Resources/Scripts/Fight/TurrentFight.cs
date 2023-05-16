@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class TurrentFight : MonoBehaviour
@@ -31,7 +32,7 @@ public class TurrentFight : MonoBehaviour
     private GameObject ShellGame;
     private string shellPath = "";
     [Header("炮塔旋转相关数据")]
-    private float rayRadius = 5;
+    private float rayRadius = 10;
     /// <summary>
     /// 炮塔旋转角度限制
     /// </summary>
@@ -50,7 +51,7 @@ public class TurrentFight : MonoBehaviour
     private Collider[] hitMonsters;
     private RaycastHit rayLineHit;
     private Vector3 rayVec;
-
+    public bool test = true;
     #endregion
 
     #region 初始化
@@ -128,7 +129,10 @@ public class TurrentFight : MonoBehaviour
         {
             target = RayLine(Quaternion.Euler(0, i * rayInterval, 0), 20f) == null ? RayLine(Quaternion.Euler(0, -i * rayInterval, 0), 20f) : RayLine(Quaternion.Euler(0, i * rayInterval, 0), 20f);
             if (target != null && target.CompareTag("Monster"))
+            {
                 turrentState = TurrentState.Attack;
+                break;
+            }
         }
     }
     /// <summary>
@@ -150,6 +154,11 @@ public class TurrentFight : MonoBehaviour
             LoopRayLine();
             IdleRotate();
             //RayDetaction();
+        }
+        else
+        {
+            if (test)
+                FightTOMonster();
         }
     }
     /// <summary>
@@ -176,7 +185,31 @@ public class TurrentFight : MonoBehaviour
 
     public void FightTOMonster()
     {
+        if(Vector3.Distance(transform.position,target.position)>10f)
+        {
+            target = null;
+            turrentState = TurrentState.Rotate;
+            test = true;
+            return;
+        }
+        rotateTrans.DOLookAt(target.transform.position, 0.5f);
+        animator.SetBool("Fire", true);
+        SceneCore.Singletons.GetPrefab(TypeName.ResourcesTypeName.RTurrent + "Bullet_Catapult", (_object) =>
+        {
+            Vector3 _vec = transform.GetChild(0).GetChild(0).GetChild(1).position;
+            GameObject _game = Instantiate(_object);
+            _game.transform.position = _vec;
+            SceneCore.Singletons.AddScript<ShellFight>(_game.transform, (_trans) =>
+            {
+                _trans.GlobalRefresh(target, 1);
+                test = false;
+                transform.DOScale(Vector3.one/2, 2).OnComplete(() =>
+                {
+                    test = true;
+                });
+            });
 
+        });
     }
     #endregion
 }

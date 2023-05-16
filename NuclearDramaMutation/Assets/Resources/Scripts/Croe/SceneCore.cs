@@ -159,7 +159,7 @@ public class SceneCore : Singleton<SceneCore>
         }
         return _vector;
     }
-    public void GetVFXToScene(string _name, Vector3 _vector, System.Action<GameObject> _action)
+    public void GetVFXToScene(string _name, Vector3 _vector, System.Action<GameObject> _action=null)
     {
         StartCoroutine(GetVFXToSceneIE(_name, _vector, _action));
     }
